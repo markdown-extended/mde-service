@@ -31,6 +31,8 @@ class Controller
     implements DebuggableInterface
 {
 
+    const API_VERSION = '0.1';
+
 // ------------------------------
 // controller internals
 // ------------------------------
@@ -78,6 +80,7 @@ class Controller
         Container::set('controller', $this);
         Container::set('request', new Request());
         Container::set('response', new Response());
+        Container::get('response')->setHeader('X-API-Version', self::API_VERSION);
     }
 
     /**
