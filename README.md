@@ -91,6 +91,15 @@ Using the `extract` argument, you can choose a single element to return.
 When the sources came from one or more uploaded files, the filenames are rendered in the `sources` array
 with the same index as in the resulting `contents` array.
 
+### Versions information
+
+Each response of the API will have a `X-API-Version` header with the current API version number. You
+can use it to check that you are still working with the right version.
+
+If a content parsing happens, the response will also have a `X-MDE-Version` header with the version
+number of the MarkdownExtended parser used. This reference should be a release of the package 
+<http://github.com/piwi/markdown-extended>. 
+
 
 Implementation examples
 -----------------------
