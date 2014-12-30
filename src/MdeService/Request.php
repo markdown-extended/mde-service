@@ -60,9 +60,7 @@ class Request
      */
     public function __construct()
     {
-        $this
-            ->setMethod($_SERVER['REQUEST_METHOD'])
-        ;
+        $this->setMethod($_SERVER['REQUEST_METHOD']);
     }
 
     /**
@@ -76,18 +74,18 @@ class Request
 
     /**
      * @return $this
+     * @throws \Exception
      */
     public function parse()
     {
         try {
             $this
-                ->setHeaders(getallheaders())
+                ->setHeaders(Helper::getAllHeaders())
                 ->_processData()
                 ->_processFiles()
             ;
         } catch (\Exception $e) {
-            Container::get('controller')
-                ->error($e->getMessage(), Response::STATUS_BAD_REQUEST);
+            throw $e;
         }
         return $this;
     }

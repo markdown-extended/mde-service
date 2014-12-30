@@ -36,6 +36,7 @@ class Response
 // ------------------------------
 
     const STATUS_OK                     = '200 OK';
+    const STATUS_NOT_MODIFIED           = '304 Not Modified';
     const STATUS_BAD_REQUEST            = '400 Bad Request';
     const STATUS_METHOD_NOT_ALLOWED     = '405 Method Not Allowed';
     const STATUS_ERROR                  = '500 Internal Server Error';
@@ -84,25 +85,36 @@ class Response
     /**
      * @param array $response_data
      * @param int $exit_status
-     * @param bool $silent
+     * @throws \Exception
      */
-    public function send(array $response_data = array(), $exit_status = 0, $silent = false)
+    public function send(array $response_data = array(), $exit_status = 0)
     {
         try {
             $content = Helper::json_encode($response_data);
         } catch (\Exception $e) {
-            if (!$silent) {
-                Container::get('controller')
-                    ->warning($e->getMessage());
-                $this->send(
-                    array('errors'=>Container::get('controller')->getErrors()), 1, true
-                );
-            } else {
-                $content = $response_data;
-            }
+            throw $e;
         }
-        $this->setContent($content);
+        $this
+            ->setContent($content)
+            ->fetch($exit_status)
+        ;
+    }
 
+    /**
+     * @param int $exit_status
+     */
+    public function fetch($exit_status = 0)
+    {
+        $this->fetchHeaders();
+        echo $this->getContent().PHP_EOL;
+        exit($exit_status);
+    }
+
+    /**
+     * Fetch headers
+     */
+    public function fetchHeaders()
+    {
         if (!$this->hasStatus()) {
             $this->setStatus(self::STATUS_OK);
         }
@@ -116,13 +128,6 @@ class Response
                 header(ucfirst($name) . ': ' . $value);
             }
         }
-
-        if (!Container::get('request')->isMethod('head')) {
-            echo $this->getContent().PHP_EOL;
-        } else {
-            echo '';
-        }
-        exit($exit_status);
     }
 
 // ------------------------------
@@ -195,6 +200,7 @@ class Response
     {
         if (
             $status == self::STATUS_OK ||
+            $status == self::STATUS_NOT_MODIFIED ||
             $status == self::STATUS_BAD_REQUEST ||
             $status == self::STATUS_METHOD_NOT_ALLOWED ||
             $status == self::STATUS_ERROR

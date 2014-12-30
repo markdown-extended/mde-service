@@ -103,7 +103,11 @@ class Controller
      */
     public function distribute()
     {
-        Container::get('request')->parse();
+        try {
+            Container::get('request')->parse();
+        } catch (\Exception $e) {
+            $this->error($e->getMessage(), Response::STATUS_BAD_REQUEST);
+        }
 
         if (
             !Container::get('request')->isMethod('get') &&
@@ -146,6 +150,19 @@ class Controller
             }
         }
 
+        // any test to launch
+        $test = Container::get('request')->getData('test');
+        if (!empty($test)) {
+            $method = 'testAction_'.$test;
+            if (method_exists($this, $method)) {
+                call_user_func(array($this, $method));
+            } else {
+                $this->warning(
+                    sprintf('Test method "%s" not found!', $test)
+                );
+            }
+        }
+
         // end here if no 'source' or 'sources' post data
         $source     = Container::get('request')->getData('source');
         $sources    = Container::get('request')->getData('sources');
@@ -185,10 +202,13 @@ class Controller
      */
     public function parse()
     {
-        Container::get('response')->setHeader('Last-Modified', gmdate('D, d M Y H:i:s').' GMT');
-        if (!Container::get('response')->hasHeader('Date')) {
-            Container::get('response')->setHeader('Date', gmdate('D, d M Y H:i:s').' GMT');
-        }
+        $time   = time();
+        $gmdate = gmdate('D, d M Y H:i:s', $time);
+
+        Container::get('response')
+            ->setHeader('X-MDE-Version', \MarkdownExtended\MarkdownExtended::MDE_VERSION)
+            ->setHeader('Last-Modified', $gmdate.' GMT')
+        ;
 
         $etag       = '';
         $sources    = $this->getSources();
@@ -201,7 +221,6 @@ class Controller
         if (!empty($sources)) {
             try {
                 foreach ($sources as $index=>$source) {
-                    $etag .= md5($source);
 
                     /* @var \MarkdownExtended\Content $mde_content */
                     $mde_content = Helper::parseMdeSource($source, $options);
@@ -228,6 +247,8 @@ class Controller
                             ;
                             break;
                     }
+                    $etag .= $source.'='.$parsed_content.';';
+
                     $content_index = $this->addContent($parsed_content);
                     if ($this->getSourceType() == 'file' && is_string($index)) {
                         $source = $index;
@@ -242,10 +263,22 @@ class Controller
             } catch (\Exception $e) {
                 throw $e;
             }
-        }
-        Container::get('response')->setHeader('ETag', $etag);
+            $etag = md5($etag);
+            Container::get('response')->setHeader('ETag', $etag);
 
-        Container::get('response')->setHeader('X-MDE-Version', \MarkdownExtended\MarkdownExtended::MDE_VERSION);
+        }
+
+        // if not modified, fetch headers and exit
+        if (
+            @strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $time ||
+            (!empty($etag) && trim($_SERVER['HTTP_IF_NONE_MATCH']) == $etag)
+        ) {
+            Container::get('response')
+                ->setStatus(Response::STATUS_NOT_MODIFIED)
+                ->fetchHeaders()
+            ;
+            exit(0);
+        }
 
         return $this;
     }
@@ -283,9 +316,19 @@ class Controller
             $response_data['dump'] = serialize($this);
         }
 
-//var_export($this);exit('yo');
-
-        Container::get('response')->send($response_data);
+        if (Container::get('request')->isMethod('head')) {
+            Container::get('response')->fetchHeaders();
+            exit(0);
+        } else {
+            try {
+                Container::get('response')->send($response_data);
+            } catch (\Exception $e) {
+                $this->warning($e->getMessage());
+                Container::get('response')
+                    ->setContent(array('errors'=>$this->getErrors()))
+                    ->fetch();
+            }
+        }
     }
 
 // ------------------------------
@@ -486,6 +529,25 @@ class Controller
     public function isDebug()
     {
         return (bool) ($this->_debug===true);
+    }
+
+// ------------------------------
+// test actions
+// ------------------------------
+
+    public function testAction_badarg()
+    {
+        throw new Error('test bad argument exception', Response::STATUS_BAD_REQUEST);
+    }
+
+    public function testAction_exception()
+    {
+        throw new \Exception('test exception');
+    }
+
+    public function testAction_error()
+    {
+        trigger_error('test error', E_USER_ERROR);
     }
 
 }

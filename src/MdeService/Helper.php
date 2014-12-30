@@ -68,9 +68,12 @@ class Helper
     {
 //echo __METHOD__;
         $error = Error::createFromException($e, Response::STATUS_ERROR);
-        Container::get('controller')->addError($error);
-        Container::get('response')->setStatus(Response::STATUS_ERROR);
-        Container::get('controller')->serve();
+        $status = method_exists($e, 'getStatus') ? $e->getStatus() : Response::STATUS_ERROR;
+        Container::get('response')
+            ->setStatus($status);
+        Container::get('controller')
+            ->addError($error)
+            ->serve();
     }
 
     /**
@@ -94,17 +97,16 @@ class Helper
      */
     public static function parseMdeSource($source, array $options = array())
     {
+        $mde_content = null;
         if (!empty($source)) {
             try {
                 $source      = str_replace('&gt;', '>', $source);
                 $source      = str_replace('&lt;', '<', $source);
                 $mde_content = Container::get('mde_parser')
-                    ->transformString($source, $options);
+                                    ->transformString($source, $options);
             } catch (\Exception $e) {
                 throw $e;
             }
-        } else {
-            $mde_content = new \MarkdownExtended\Content();
         }
         return $mde_content;
     }
@@ -170,6 +172,25 @@ class Helper
             $data = $json;
         }
         return $data;
+    }
+
+    /**
+     * @see http://php.net/manual/fr/function.getallheaders.php#84262
+     * @return string
+     */
+    public static function getAllHeaders()
+    {
+        if (function_exists('getallheaders')) {
+            return getallheaders();
+        } else {
+            $headers = array();
+            foreach ($_SERVER as $name => $value) {
+                if (substr($name, 0, 5) == 'HTTP_') {
+                    $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+                }
+            }
+            return $headers;
+        }
     }
 
 }

@@ -82,7 +82,7 @@ class Error
             $info[] = 'in ' . $filename;
         }
         if (!empty($lineno)) {
-            $info[] = 'at ' . $lineno;
+            $info[] = 'at line ' . $lineno;
         }
 
         if (!empty($info)) {
