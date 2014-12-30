@@ -72,39 +72,52 @@ final class Container
 // ------------------------------
 
     /**
-     * @param $name
-     * @param $object
-     * @throws \Exception
+     * use this flag to throw errors on failures
      */
-    public static function set($name, $object)
+    const FAIL_WITH_ERROR = 0;
+
+    /**
+     * use this flag to NOT throw error on failures
+     */
+    const FAIL_GRACEFULLY = 1;
+
+    /**
+     * @param   string  $name
+     * @param   object  $object
+     * @param   int     $on_failure
+     * @throws  \Exception
+     * @return  bool
+     * @see     self::_set()
+     */
+    public static function set($name, $object, $on_failure = self::FAIL_WITH_ERROR)
     {
         try {
-            self::getInstance()->_set($name, $object);
+            return self::getInstance()->_set($name, $object, $on_failure);
         } catch (\Exception $e) {
             throw $e;
         }
     }
 
     /**
-     * @param $name
+     * @param   string  $name
+     * @param   int     $on_failure
+     * @throws  \Exception
+     * @return  object
+     * @see     self::_get()
      */
-    public static function delete($name)
+    public static function get($name, $on_failure = self::FAIL_WITH_ERROR)
     {
-        self::getInstance()->_delete($name);
+        try {
+            return self::getInstance()->_get($name, $on_failure);
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 
     /**
-     * @param $name
-     * @return null
-     */
-    public static function get($name)
-    {
-        return self::getInstance()->_get($name);
-    }
-
-    /**
-     * @param $name
-     * @return bool
+     * @param   string  $name
+     * @return  bool
+     * @see     self::_exists()
      */
     public static function exists($name)
     {
@@ -116,60 +129,64 @@ final class Container
 // ------------------------------
 
     /**
-     * @var array
+     * @var     array   This is the container registry of objects, indexed by their names in lowercase
      */
     private $_registry = array();
 
     /**
-     * @param $name
-     * @param $object
-     * @throws \Exception
+     * @param   string    $name         the name of the object to store in the container
+     * @param   object    $object       the instance of the object to store
+     * @param   int       $on_failure   flag to set the behavior on error
+     * @throws  \Exception if the object already exists or is not an object
+     * @return  bool
      */
-    public function _set($name, $object)
+    public function _set($name, $object, $on_failure = self::FAIL_WITH_ERROR)
     {
         $name = strtolower($name);
-        try {
-            if (!isset($this->_registry[$name])) {
+        if (!$this->_exists($name)) {
+            if (is_object($object)) {
                 $this->_registry[$name] = $object;
-            } else {
+                return true;
+            } elseif (($on_failure & self::FAIL_WITH_ERROR)) {
                 throw new \Exception(
-                    sprintf('A container entry can not be override! (for "%s")', $name)
+                    sprintf('A "%s" container entry must be an object!', $name)
                 );
             }
-        } catch (\Exception $e) {
-            throw $e;
+        } elseif (($on_failure & self::FAIL_WITH_ERROR)) {
+            throw new \Exception(
+                sprintf('The "%s" container entry can not be override!', $name)
+            );
         }
+        return false;
     }
 
     /**
-     * @param $name
-     * @return null
+     * @param   string    $name         the name of the object to get from the container
+     * @param   int       $on_failure   flag to set the behavior on error
+     * @throws  \Exception if the object does not exist
+     * @return  object
      */
-    public function _get($name)
+    public function _get($name, $on_failure = self::FAIL_WITH_ERROR)
     {
         $name = strtolower($name);
-        return (isset($this->_registry[$name]) ? $this->_registry[$name] : null);
+        if ($this->_exists($name)) {
+            return (isset($this->_registry[$name]) ? $this->_registry[$name] : null);
+        } elseif (($on_failure & self::FAIL_WITH_ERROR)) {
+            throw new \Exception(
+                sprintf('Trying to access an unknown container entry "%s"!', $name)
+            );
+        }
+        return null;
     }
 
     /**
-     * @param $name
-     * @return bool
+     * @param   string  $name
+     * @return  bool
      */
     public function _exists($name)
     {
         $name = strtolower($name);
         return (bool) (isset($this->_registry[$name]));
-    }
-
-    /**
-     * @param $name
-     */
-    public function _delete($name)
-    {
-        $name = strtolower($name);
-        if (isset($this->_registry[$name])) {
-            unset($this->_registry[$name]);
-        }
     }
 
 }
