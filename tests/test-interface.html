@@ -1,0 +1,92 @@
+<html>
+<body>
+
+<div id="console"></div>
+<script>
+
+function _print(str)
+{
+    document.getElementById('console').innerHTML += "<br />" + str;
+}
+
+function getXHR()
+{
+// open a new XHR request handler
+    var xhr = new XMLHttpRequest();
+    xhr.id = new Date().getTime();
+
+// define a response callback
+    xhr.onreadystatechange  = function() {
+        if (xhr.readyState  == 4) {
+
+            // the response is always a JSON content
+            var response = JSON.parse(xhr.response);
+
+            // the response can have multiple "status" header:
+            // 200 : no error
+            if (xhr.status  == 200) {
+
+                // if response.content is not empty
+                if (response.content.length > 0) {
+                    _print('['+xhr.id+'] ' + response.content);
+
+                // else an error occurred
+                } else {
+                    _print('['+xhr.id+'] Empty response? :' + response.errors.join('\n'));
+
+                }
+
+            // 400 : bad request
+            } else if (xhr.status  == 400) {
+                _print('['+xhr.id+'] Bad request!' + response.errors.join('\n'));
+
+            // 405 : bad method (this one should never happen here)
+            } else if (xhr.status  == 405) {
+                _print('['+xhr.id+'] Bad request method!' + response.errors.join('\n'));
+
+            // 500 : any other error
+            } else if (xhr.status  == 500) {
+                _print('['+xhr.id+'] Internal server error!' + response.errors.join('\n'));
+
+            }
+        }
+    };
+    return xhr;
+}
+
+// these are just for the example
+var opts = {
+    source:     'My *test* MDE **content** ... azerty `azerty()` azerty <http://google.com/> azerty.',
+    options:    {}
+};
+
+// build the request data
+var raw_data = "options=" + encodeURIComponent(JSON.stringify(opts.options)) + "&"
+        + "source=" + encodeURIComponent(opts.source);
+
+var xhr;
+
+// make the POST request
+var xhr1 = getXHR();
+_print('> making a POST request ... [id='+xhr1.id+']');
+//console.debug(xhr);
+xhr1.open("POST", "../www/mde-api.php", true);
+xhr1.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+xhr1.send(raw_data);
+
+// you can also make a simple GET request with the same data
+var xhr2 = getXHR();
+_print('> making a GET request ... [id='+xhr2.id+']');
+xhr2.open("GET", "../www/mde-api.php?" + raw_data, true);
+xhr2.send();
+
+// you can also post a JSON table
+var xhr3 = getXHR();
+_print('> making a POST request with JSON data ... [id='+xhr3.id+']');
+xhr3.open("POST", "../www/mde-api.php", true);
+xhr3.setRequestHeader("Content-Type", "application/json");
+xhr3.send(JSON.stringify(opts));
+</script>
+
+</body>
+</html>

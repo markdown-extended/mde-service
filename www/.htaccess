@@ -1,0 +1,41 @@
+# default global character set
+AddDefaultCharset utf-8
+
+# disable server signature
+ServerSignature Off
+
+# automatic Etag header
+FileETag MTime Size
+
+# no indexing
+<IfModule mod_autoindex.c>
+    Options All -Indexes
+</IfModule>
+
+# settings for file uploads
+<IfModule mod_php5.c>
+    php_value upload_max_filesize 513M
+    php_value post_max_size 513M
+    php_value memory_limit 512M
+    php_value mbstring.func_overload 0
+</IfModule>
+
+# url rewriting
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    #RewriteBase /
+
+    # no access to anything beginning with a dot
+    RewriteRule ^(.*/)?\.(.*)/ - [F]
+
+    # explicitly disable rewriting for index.html and mde-api.php
+    RewriteRule ^(index.html|mde-api.php) - [L]
+
+    # skip all this if the file or the dir exists
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    # rebuild `xxx.php/myreq` to `xxx.php?myreq`
+    RewriteRule ^([a-zA-Z0-9\-_]+)\.php\/(.*)$ $1.php?$2 [QSA,L]
+    # `mde-api.php` will handle all requests
+    RewriteRule ^(.*)$ mde-api.php?$1 [QSA,L]
+</IfModule>
