@@ -1,0 +1,27 @@
+{
+    "name": "piwi/mde-service",
+    "description": "A webservice tool to parse Markdown-Extended contents online",
+    "homepage": "http://api.aboutmde.org/",
+    "license": "Apache-2.0",
+    "keywords": [
+        "markdown",
+        "markdown-extended",
+        "webservice"
+    ],
+    "authors": [{
+        "name": "piwi",
+        "homepage": "http://e-piwi.fr/"
+    }],
+    "require": {
+        "php": ">=5.3.0",
+        "piwi/markdown-extended": "dev-master"
+    },
+    "autoload": { "psr-0": {
+        "MdeService": "src"
+    } },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.0.*-dev"
+        }
+    }
+}
