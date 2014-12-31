@@ -8,21 +8,23 @@ a JSON content response with significant headers.
 
 The basic usage schema is:
 
-    $ curl -i http://localhost/mde-service/www/mde-api.php?source=My%20%2Atest%2A%20MDE%20%2A%2Acontent%2A%2A%20...%20azerty%20%60azerty%28%29%60%20azerty%20%3Chttp%3A%2F%2Fgoogle.com%2F%3E%20azerty.
-
+    $ curl -i http://localhost/mde-service/www/mde-api.php?source=%2AMarkdown%2A-__extended__%20content
+    
     HTTP/1.1 200 OK
     Last-Modified: Mon, 29 Dec 2014 21:11:01 GMT
     Status: 200 OK
-    ETag: b0dd0930fe900e4d554a8ffa1ce0fb8c
     Content-Type: application/json; charset=utf-8
     X-API-Version: 0.1
     X-MDE-Version: 0.1-gamma4
+    ETag: 8a4d0bef2b45148a6c8df14158704f6c
     
     {
-        "source":"My *test* MDE **content** ... azerty `azerty()` azerty <http:\/\/google.com\/> azerty.",
-        "content":"\n\n<p>My <em>test<\/em> MDE <strong>content<\/strong> ... azerty <code>azerty()<\/code> azerty <a href=\"http:\/\/google.com\/\" title=\"See online http:\/\/google.com\/\">http:\/\/google.com\/<\/a> azerty.<\/p>\n\n\n",
+        "source":"*Markdown*-__extended__ content",
+        "content":"\n\n<p><em>Markdown<\/em>-<strong>extended<\/strong> content<\/p>\n\n\n",
         "errors":[]
     }
+
+This webservice is available online at <http://api.aboutmde.org/>.
 
 
 Build the request
