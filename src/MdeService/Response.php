@@ -206,7 +206,7 @@ class Response
             $status == self::STATUS_ERROR
         ) {
             $this->status = $status;
-            $this->setHeader('status', $status);
+            $this->setHeader('API-Status', $status);
         } else {
             throw new \InvalidArgumentException(
                 sprintf('Unknown response status "%s"!', $status)

@@ -82,7 +82,7 @@ class Controller
         Container::set('response', new Response());
         Container::get('response')
             ->setHeader('Access-Control-Allow-Origin', '*')
-            ->setHeader('X-API-Version', self::API_VERSION)
+            ->setHeader('API-Version', self::API_VERSION)
         ;
     }
 
@@ -209,7 +209,7 @@ class Controller
         $gmdate = gmdate('D, d M Y H:i:s', $time);
 
         Container::get('response')
-            ->setHeader('X-MDE-Version', \MarkdownExtended\MarkdownExtended::MDE_VERSION)
+            ->setHeader('MDE-Version', \MarkdownExtended\MarkdownExtended::MDE_VERSION)
             ->setHeader('Last-Modified', $gmdate.' GMT')
         ;
 

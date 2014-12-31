@@ -12,10 +12,10 @@ The basic usage schema is:
     
     HTTP/1.1 200 OK
     Last-Modified: Mon, 29 Dec 2014 21:11:01 GMT
-    Status: 200 OK
     Content-Type: application/json; charset=utf-8
-    X-API-Version: 0.1
-    X-MDE-Version: 0.1-gamma4
+    API-Status: 200 OK
+    API-Version: 0.1
+    MDE-Version: 0.1-gamma4
     ETag: 8a4d0bef2b45148a6c8df14158704f6c
     
     {
@@ -56,6 +56,9 @@ You can optionally define some special headers:
     [the Olson database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) and
     defaults to *UTC*.
 
+Using the `source_type=file` option, you can upload one or more files and
+their contents will be parsed as the `sources`.
+
 
 Understand the response
 -----------------------
@@ -75,6 +78,7 @@ The JSON content is built like:
 The response status can be:
 
 -   `200 OK` if nothing went wrong
+-   `304 Not Modified` if the request contains an `ETag` or a `If-Modified-Since` header and the response is not modified
 -   `400 Bad Request` if the request seems malformed
 -   `405 Method Not Allowed` if the request verb was not allowed (anything else than *GET*, *POST* or *HEAD*)
 -   `500 Internal Server Error` if an error occurred during the process.
@@ -94,10 +98,10 @@ with the same index as in the resulting `contents` array.
 
 ### Versions information
 
-Each response of the API will have a `X-API-Version` header with the current API version number. You
+Each response of the API will have a `API-Version` header with the current API version number. You
 can use it to check that you are still working with the right version.
 
-If a content parsing happens, the response will also have a `X-MDE-Version` header with the version
+If a content parsing happens, the response will also have a `MDE-Version` header with the version
 number of the MarkdownExtended parser used. This reference should be a release of the package 
 <http://github.com/piwi/markdown-extended>. 
 
@@ -124,8 +128,9 @@ $ curl -i \
 
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-X-API-Version: 0.1
-X-MDE-Version: 0.1-gamma4
+API-Status: 200 OK
+API-Version: 0.1
+MDE-Version: 0.1-gamma4
 Last-Modified: Wed, 31 Dec 2014 00:57:32 GMT
 ETag: c6989875115e90dc377c460c4801734c
 
@@ -148,7 +153,7 @@ $ curl -i \
 # same output ...
 ```
 
-A POST request with JSON arguments can be made with:
+A POST request with JSON encoded arguments can be made with:
 
 ```bash
 $ echo "{ \
@@ -186,8 +191,9 @@ $ curl -i \
     
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-X-API-Version: 0.1
-X-MDE-Version: 0.1-gamma4
+API-Status: 200 OK
+API-Version: 0.1
+MDE-Version: 0.1-gamma4
 Last-Modified: Wed, 31 Dec 2014 00:57:32 GMT
 ETag: c6989875115e90dc377c460c4801734c
 
@@ -209,7 +215,8 @@ $ curl -i \
 
 HTTP/1.1 405 Method Not Allowed
 Content-Type: application/json; charset=utf-8
-X-API-Version: 0.1
+API-Status: 405 Method Not Allowed
+API-Version: 0.1
 
 {
     "sources":[],
