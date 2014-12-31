@@ -272,15 +272,17 @@ class Controller
         }
 
         // if not modified, fetch headers and exit
+        $if_modified_since  = Container::get('request')->getHeader('If-Modified-Since');
+        $if_none_match      = Container::get('request')->getHeader('If-None-Match');
         if (
-            @strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $time ||
-            (!empty($etag) && trim($_SERVER['HTTP_IF_NONE_MATCH']) == $etag)
+            (!empty($if_modified_since) && @strtotime($if_modified_since) >= $time) ||
+            (!empty($if_none_match) && !empty($etag) && trim($if_none_match) == $etag)
         ) {
             Container::get('response')
                 ->setStatus(Response::STATUS_NOT_MODIFIED)
                 ->fetchHeaders()
             ;
-            exit(0);
+            exit(PHP_EOL);
         }
 
         return $this;
@@ -321,7 +323,7 @@ class Controller
 
         if (Container::get('request')->isMethod('head')) {
             Container::get('response')->fetchHeaders();
-            exit(0);
+            exit(PHP_EOL);
         } else {
             try {
                 Container::get('response')->send($response_data);
