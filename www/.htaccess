@@ -4,20 +4,9 @@ AddDefaultCharset utf-8
 # disable server signature
 ServerSignature Off
 
-# automatic Etag header
-FileETag MTime Size
-
 # no indexing
 <IfModule mod_autoindex.c>
     Options All -Indexes
-</IfModule>
-
-# settings for file uploads
-<IfModule mod_php5.c>
-    php_value upload_max_filesize 513M
-    php_value post_max_size 513M
-    php_value memory_limit 512M
-    php_value mbstring.func_overload 0
 </IfModule>
 
 # url rewriting
@@ -29,7 +18,7 @@ FileETag MTime Size
     RewriteRule ^(.*/)?\.(.*)/ - [F]
 
     # explicitly disable rewriting for index.html and mde-api.php
-    RewriteRule ^(index.html|mde-api.php) - [L]
+    RewriteRule ^(index\.html|mde-api\.php) - [L]
 
     # skip all this if the file or the dir exists
     RewriteCond %{REQUEST_FILENAME} !-f
