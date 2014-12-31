@@ -11,12 +11,11 @@ The basic usage schema is:
     $ curl -i http://localhost/mde-service/www/mde-api.php?source=My%20%2Atest%2A%20MDE%20%2A%2Acontent%2A%2A%20...%20azerty%20%60azerty%28%29%60%20azerty%20%3Chttp%3A%2F%2Fgoogle.com%2F%3E%20azerty.
 
     HTTP/1.1 200 OK
-    Date: Mon, 29 Dec 2014 21:11:01 GMT
     Last-Modified: Mon, 29 Dec 2014 21:11:01 GMT
     Status: 200 OK
     ETag: b0dd0930fe900e4d554a8ffa1ce0fb8c
-    Content-Length: 342
     Content-Type: application/json; charset=utf-8
+    X-API-Version: 0.1
     X-MDE-Version: 0.1-gamma4
     
     {
@@ -104,41 +103,117 @@ number of the MarkdownExtended parser used. This reference should be a release o
 Implementation examples
 -----------------------
 
-### Command line implementation
+### Command line usage
 
-Below is an example of a `cUrl` request to run in command line (written here as a shell script):
+The examples below can be run in command line using [curl](http://en.wikipedia.org/wiki/CURL).
+Each of them will fetch the response headers and its content on the terminal. To get only
+the content ("in-real-life"), delete the `-i` option.
+
+The `options` argument is shown empty in each request but is not required.
+
+A basic POST request usage is:
 
 ```bash
-# these are just for the example
-MDE_OPTIONS='{}' # as JSON table
-MDE_SOURCE='My *test* MDE **content** ... azerty `azerty()` azerty <http://google.com/> azerty.'
+$ curl -i \
+    --request POST \
+    --data-urlencode "source=My *test* MDE **content** ... azerty \`azerty()\` azerty <http://google.com/> azerty." \
+    --data-urlencode "options={}" \
+    http://api.aboutmde.org/mde-api.php ;
 
-# test as raw POST data
-curl --request POST \
-    --data-urlencode "source=${MDE_SOURCE}" \
-    --data-urlencode "options=${MDE_OPTIONS}" \
-    "${DOMAIN}/www/mde-api.php" ;
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+X-API-Version: 0.1
+X-MDE-Version: 0.1-gamma4
+Last-Modified: Wed, 31 Dec 2014 00:57:32 GMT
+ETag: c6989875115e90dc377c460c4801734c
 
-# test as raw GET data
-curl --get \
-    --data-urlencode "source=${MDE_SOURCE}" \
-    --data-urlencode "options=${MDE_OPTIONS}" \
-    "${DOMAIN}/www/mde-api.php" ;
+{
+    "source":"My *test* MDE **content** ... azerty `azerty()` azerty <http:\/\/google.com\/> azerty.",
+    "content":"\n\n<p>My <em>test<\/em> MDE <strong>content<\/strong> ... azerty <code>azerty()<\/code> azerty <a href=\"http:\/\/google.com\/\" title=\"See online http:\/\/google.com\/\">http:\/\/google.com\/<\/a> azerty.<\/p>\n\n\n",
+    "errors":[]
+}
+```
 
-# test as raw POST data using the HEAD verb
-curl --request HEAD \
-    --data-urlencode "source=${MDE_SOURCE}" \
-    --data-urlencode "options=${MDE_OPTIONS}" \
-    "${DOMAIN}/www/mde-api.php" ;
+A basic GET request usage is:
 
-# test as JSON POST data
-echo "{ \
-\"source\":     \"${MDE_SOURCE}\", \
-\"options\":    \"${MDE_OPTIONS}\" \
-}" | curl --request POST \
-    --header "Content-Type: application/json" \
-    --data @- \
-    "${DOMAIN}/www/mde-api.php" ;
+```bash
+$ curl -i \
+    --get \
+    --data-urlencode "source=My *test* MDE **content** ... azerty \`azerty()\` azerty <http://google.com/> azerty." \
+    --data-urlencode "options={}" \
+    http://api.aboutmde.org/mde-api.php ;
+    
+# same output ...
+```
+
+A POST request with JSON arguments can be made with:
+
+```bash
+$ echo "{ \
+    \"source\":     \"My *test* MDE **content** ... azerty \`azerty()\` azerty <http://google.com/> azerty.\", \
+    \"options\":    \"{}\" \
+    }" | curl -i \
+        --request POST \
+        --header "Content-Type: application/json" \
+        --data @- \
+        http://api.aboutmde.org/mde-api.php ;
+
+# same output ...
+```
+
+You can define a personal header in the request with:
+
+```bash
+$ curl -i \
+    --header "Time-Zone: Europe/Paris" \
+    --request POST \
+    --data-urlencode "source=My *test* MDE **content** ... azerty \`azerty()\` azerty <http://google.com/> azerty." \
+    --data-urlencode "options={}" \
+    http://api.aboutmde.org/mde-api.php ;
+
+# same output ...
+```
+
+To upload a file, use:
+
+```bash
+$ curl -i \
+    --form "source=@my-file.md" \
+    --form "source_type=file" \
+    http://api.aboutmde.org/mde-api.php ;
+    
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+X-API-Version: 0.1
+X-MDE-Version: 0.1-gamma4
+Last-Modified: Wed, 31 Dec 2014 00:57:32 GMT
+ETag: c6989875115e90dc377c460c4801734c
+
+{
+    "source":["my-file.md"],
+    "content":"\n\n<p>My <em>test<\/em> MDE <strong>content<\/strong> ... azerty <code>azerty()<\/code> azerty <a href=\"http:\/\/google.com\/\" title=\"See online http:\/\/google.com\/\">http:\/\/google.com\/<\/a> azerty.<\/p>\n\n\n",
+    "errors":[]
+}
+```
+
+In case of error, you will have:
+
+```bash
+$ curl -i \
+    --request INPUT \
+    --data-urlencode "source=My *test* MDE **content** ... azerty \`azerty()\` azerty <http://google.com/> azerty." \
+    --data-urlencode "options={}" \
+    http://api.aboutmde.org/mde-api.php ;
+
+HTTP/1.1 405 Method Not Allowed
+Content-Type: application/json; charset=utf-8
+X-API-Version: 0.1
+
+{
+    "sources":[],
+    "contents":[],
+    "errors":["Request method \"INPUT\" is not allowed!"]
+}
 ```
 
 
