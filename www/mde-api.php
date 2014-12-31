@@ -10,13 +10,17 @@ $autoloader = __DIR__.'/../vendor/autoload.php';
 // define some specific settings for the webservice
 @ini_set('display_errors',1);
 @ini_set('html_errors', 0);
+@ini_set('session.use_cookies', 0);
+@ini_set('upload_max_filesize', '64M');
+@ini_set('post_max_size', '64M');
+@ini_set('memory_limit', '252M');
 @error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT);
-if (function_exists('xdebug_disable')) {
+if (@function_exists('xdebug_disable')) {
     xdebug_disable();
 }
 
 // get the composer autoloader
-if (file_exists($autoloader)) {
+if (@file_exists($autoloader)) {
     require_once $autoloader;
 } else {
     exit('No autoloader found for application namespaces!');
