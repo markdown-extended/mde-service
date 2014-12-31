@@ -80,7 +80,10 @@ class Controller
         Container::set('controller', $this);
         Container::set('request', new Request());
         Container::set('response', new Response());
-        Container::get('response')->setHeader('X-API-Version', self::API_VERSION);
+        Container::get('response')
+            ->setHeader('Access-Control-Allow-Origin', '*')
+            ->setHeader('X-API-Version', self::API_VERSION)
+        ;
     }
 
     /**
