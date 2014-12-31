@@ -105,6 +105,19 @@ If a content parsing happens, the response will also have a `MDE-Version` header
 number of the MarkdownExtended parser used. This reference should be a release of the package 
 <http://github.com/piwi/markdown-extended>. 
 
+### Caching responses
+
+The responses of the API are not cached (this would have no sense). But you can make a request with
+information to update your content only if the response is modified. You can do so by re-using the
+`ETag` header of a previous response you had and send it as a value of a `If-None-Match` header in
+your request:
+
+    $ curl --header "If-None-Match: YOUR_PREVIOUS_RESPONSE_ETAG" ...
+
+The `ETag` embedded in each response of the API if an MDE parsing happens is built with the original
+sources AND their parsed contents. This way, if you use the header above you will have the `304 Not Modified`
+status response only if you sent the same source AND if the result is not updated.
+
 
 Implementation examples
 -----------------------
