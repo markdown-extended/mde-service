@@ -3,7 +3,7 @@
  * This file is part of MDE-Service
  * <http://github.com/piwi/mde-service>
  *
- * Copyright 2014 Pierre Cassat
+ * Copyright 2014-2015 Pierre Cassat <me@e-piwi.fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
