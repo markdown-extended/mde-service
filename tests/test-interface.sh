@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
 # first argument can be the domain name
-DOMAIN="${1:-http://piero.local/GitHub_projects/mde-service/}"
-
+DOMAIN="${1:-http://piwi.local/projects/markdown-extended/mde-service/}"
 INTERFACE='www/mde-api.php'
 DEBUG='false'
 #DEBUG='true'

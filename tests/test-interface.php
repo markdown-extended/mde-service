@@ -4,7 +4,7 @@
 $args = array_slice($argv, 1);
 
 # first argument can be the domain name
-$domain = isset($args[0]) ? $args[0] : 'http://piero.local/GitHub_projects/mde-service/';
+$domain = isset($args[0]) ? $args[0] : 'http://piwi.local/projects/markdown-extended/mde-service/';
 
 $interface = 'www/mde-api.php';
 #$debug          = false;
