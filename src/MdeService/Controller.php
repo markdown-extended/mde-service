@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of MDE-Service
- * <http://github.com/piwi/mde-service>
+ * <http://github.com/markdown-extended/mde-service>
  *
  * Copyright 2014-2015 Pierre Cassat <me@e-piwi.fr>
  *

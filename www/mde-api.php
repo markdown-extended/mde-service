@@ -1,6 +1,6 @@
 <?php
 /**
- * see <http://github.com/piwi/mde-service>
+ * see <http://github.com/markdown-extended/mde-service>
  */
 
 // path to the PHP namespaces autoloader (here from Composer)
