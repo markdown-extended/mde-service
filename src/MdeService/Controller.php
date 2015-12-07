@@ -192,7 +192,7 @@ class Controller
         if (!class_exists('\MarkdownExtended\MarkdownExtended')) {
             $this->error('Class "\MarkdownExtended\MarkdownExtended" not found!');
         }
-        Container::set('mde_parser', \MarkdownExtended\MarkdownExtended::create());
+        Container::set('mde_parser', new \MarkdownExtended\Parser());
 
         return $this;
     }
@@ -209,7 +209,7 @@ class Controller
         $gmdate = gmdate('D, d M Y H:i:s', $time);
 
         Container::get('response')
-            ->setHeader('MDE-Version', \MarkdownExtended\MarkdownExtended::MDE_VERSION)
+            ->setHeader('MDE-Version', \MarkdownExtended\MarkdownExtended::VERSION)
             ->setHeader('Last-Modified', $gmdate.' GMT')
         ;
 
