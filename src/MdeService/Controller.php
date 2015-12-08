@@ -192,7 +192,7 @@ class Controller
         if (!class_exists('\MarkdownExtended\MarkdownExtended')) {
             $this->error('Class "\MarkdownExtended\MarkdownExtended" not found!');
         }
-        Container::set('mde_parser', new \MarkdownExtended\Parser());
+        Container::set('mde_parser', new \MarkdownExtended\MarkdownExtended());
 
         return $this;
     }
@@ -231,22 +231,22 @@ class Controller
 
                     switch ($extract) {
                         case 'metadata':
-                            $parsed_content = $mde_content->getMetadataToString();
+                            $parsed_content = $mde_content->getMetadataFormatted();
                             break;
                         case 'body':
                             $parsed_content = $mde_content->getBody();
                             break;
                         case 'notes':
-                            $parsed_content = $mde_content->getNotesToString();
+                            $parsed_content = $mde_content->getNotesFormatted();
                             break;
                         case 'full':
                         default:
                             $parsed_content =
-                                $mde_content->getMetadataToString()
+                                $mde_content->getMetadataFormatted()
                                 .PHP_EOL
                                 .$mde_content->getBody()
                                 .PHP_EOL
-                                .$mde_content->getNotesToString()
+                                .$mde_content->getNotesFormatted()
                             ;
                             break;
                     }
